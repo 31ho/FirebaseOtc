@@ -192,7 +192,7 @@ public class HomeActivity extends AppCompatActivity
     private void upload(String uri){
         StorageReference storageRef = storage.getReference();
 
-        Uri file = Uri.fromFile(new File(uri));
+        final Uri file = Uri.fromFile(new File(uri));
         final StorageReference riversRef = storageRef.child("images/"+file.getLastPathSegment());
         UploadTask uploadTask = riversRef.putFile(file);
 
@@ -214,6 +214,7 @@ public class HomeActivity extends AppCompatActivity
 
                     ImageDTO imageDTO = new ImageDTO();
                     imageDTO.imageUrl =  downloadUri.toString();
+                    imageDTO.imageName = file.getLastPathSegment();
                     imageDTO.title = title.getText().toString();
                     imageDTO.description = decription.getText().toString();
                     imageDTO.uid = auth.getCurrentUser().getUid();

@@ -27,4 +27,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/baseline_favorite_border_black_18dp" />
+
+    <ImageView
+        android:id="@+id/item_delete_button_iamgeView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/baseline_delete_forever_black_18dp"
+        />
 </LinearLayout>

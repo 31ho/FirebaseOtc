@@ -14,6 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -22,6 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +37,7 @@ public class BoardActivity extends AppCompatActivity {
     private FirebaseDatabase firebaseDatabase;
     private BoardRecyclerViewAdapter boardRecyclerViewAdapter;
     private FirebaseAuth auth;
+    private FirebaseStorage storage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,8 @@ public class BoardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_board);
         auth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
+        storage = FirebaseStorage.getInstance();
+
         recyclerView = (RecyclerView) findViewById(R.id.borad_activity_recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         boardRecyclerViewAdapter = new BoardRecyclerViewAdapter();
@@ -88,11 +94,18 @@ public class BoardActivity extends AppCompatActivity {
                     onStarClicked(firebaseDatabase.getReference().child("images").child(uidLists.get(i)));
                 }
             });
+            ((CustomViewHolder)viewHolder).deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    delete_content(i);
+                }
+            });
             if (imageDTOS.get(i).stars.containsKey(auth.getCurrentUser().getUid())) {
                 ((CustomViewHolder)viewHolder).starButton.setImageResource(R.drawable.baseline_favorite_black_18dp);
             } else {
                 ((CustomViewHolder)viewHolder).starButton.setImageResource(R.drawable.baseline_favorite_border_black_18dp);
             }
+
         }
 
         @Override
@@ -137,12 +150,28 @@ public class BoardActivity extends AppCompatActivity {
             });
         }
 
+        private void delete_content(int pos){
+            Log.d("딜리트 확인", imageDTOS.get(pos).imageName);
+            storage.getReference().child("images/"+ imageDTOS.get(pos).imageName).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(BoardActivity.this,"삭제 완료",Toast.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(BoardActivity.this,"삭제 실패",Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
         private class CustomViewHolder extends RecyclerView.ViewHolder {
 
             ImageView imageView;
             TextView textView;
             TextView textView2;
             ImageView starButton;
+            ImageView deleteButton;
 
             public CustomViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -150,6 +179,7 @@ public class BoardActivity extends AppCompatActivity {
                 textView = (TextView) itemView.findViewById(R.id.item_text1);
                 textView2 = (TextView) itemView.findViewById(R.id.item_text2);
                 starButton = (ImageView) itemView.findViewById(R.id.item_starButton_imageView);
+                deleteButton = (ImageView) itemView.findViewById(R.id.item_delete_button_iamgeView);
             }
         }
     }
