@@ -150,12 +150,21 @@ public class BoardActivity extends AppCompatActivity {
             });
         }
 
-        private void delete_content(int pos){
-            Log.d("딜리트 확인", imageDTOS.get(pos).imageName);
+        private void delete_content(final int pos){
             storage.getReference().child("images/"+ imageDTOS.get(pos).imageName).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    Toast.makeText(BoardActivity.this,"삭제 완료",Toast.LENGTH_SHORT).show();
+                    firebaseDatabase.getReference().child("images").child(uidLists.get(pos)).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(BoardActivity.this,"삭제가 완료되었습니다",Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(BoardActivity.this,"삭제가 실패하였습니다",Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -163,6 +172,8 @@ public class BoardActivity extends AppCompatActivity {
                     Toast.makeText(BoardActivity.this,"삭제 실패",Toast.LENGTH_SHORT).show();
                 }
             });
+
+
         }
 
         private class CustomViewHolder extends RecyclerView.ViewHolder {
